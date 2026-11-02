@@ -249,6 +249,30 @@ for (const c of CASES) {
   note(`${c.what.padEnd(34)} 화면값 ${txt} (${off.toFixed(2)}%)`);
 }
 
+/* ★ 2026-11-02(작업지시 40-1 PR B ①) — 정적 결과 문단([data-static-result], 빌드 때 엔진으로 구한 숫자)이
+   저장본 없이 처음 연 계산기가 실제로 보이는 숫자와 같은가. 문단의 숫자를 하나씩 계산기 카드 글자에서 찾는다.
+   칸의 입력값(37 GBq · 5 years · k = 1.645 등)은 카드에 결과가 아닌 꼴로 들어가므로 결과 숫자만 대조한다. */
+console.log("\n── 정적 결과 = 계산기 첫 화면 ──");
+const STATIC = {
+  "/decay/": ["19.17", "51.8", "0.949", "1925.28", "17.83"],
+  "/mda/": ["3,000", "127.4", "257.5", "1.717", "0.854"],
+  "/specific-activity/": ["2.2950×10⁹", "0.062028", "24110", "435.7"],
+};
+for (const [p, nums] of Object.entries(STATIC)) {
+  await pg.goto(`http://localhost:4321/calc${p}`, { waitUntil: "networkidle" });
+  await pg.waitForTimeout(600);
+  const { para, card } = await pg.evaluate(() => {
+    const el = document.querySelector("[data-static-result]");
+    return { para: el?.textContent?.replace(/\s+/g, " ") ?? "", card: el?.previousElementSibling?.textContent ?? "" };
+  });
+  const missPara = nums.filter((n) => !para.includes(n));
+  const missCard = nums.filter((n) => !card.includes(n));
+  if (!para) fail.push(`${p}: 정적 결과 문단이 없다`);
+  if (missPara.length) fail.push(`${p}: 정적 문단에 ${missPara.join(" · ")} 이 없다(대조표를 고칠 것)`);
+  if (missCard.length) fail.push(`${p}: 계산기 첫 화면에 ${missCard.join(" · ")} 이 없다 — 정적 문단과 갈라졌다`);
+  note(`${p.padEnd(22)} 정적 ${nums.length - missPara.length}/${nums.length} · 화면 ${nums.length - missCard.length}/${nums.length}`);
+}
+
 /* ★ 조건 복원이 못 믿을 주소에서도 무너지지 않는가 */
 console.log("\n── 못 믿을 주소 ──");
 for (const bad of ["?s=%%%notbase64%%%", `?s=${Buffer.from('{"nuclide":123,"act":"x"}').toString("base64")}`, "?s="]) {

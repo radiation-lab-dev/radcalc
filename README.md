@@ -19,7 +19,7 @@ v1.1.0 은 Zenodo 새 판과 같은 번호이고, 태그 · 릴리스는 소유�
 ## ★★ 검색 보완 B — 판 1.2.2 (2026-11-02)
 
 작업지시 40-1 PR B. 엔진 · 자료 · 계산값은 그대로라 끝자리다.
-- **정적 결과**: decay · mda · specific-activity 계산기는 `client:only` 라 받은 HTML 에 결과 숫자가 없었다. 칸의 처음 값을 `lib/tool-defaults.ts` 한 곳에 두고 계산기가 그것을 기본값으로 쓴다. 같은 엔진 함수 · 같은 `fmt` 로 빌드 때 결과를 구해 `ToolPage` 의 `example` 칸(계산기 바로 아래 한 문단, 쪽마다 따로 쓴 문장)에 적는다. `tool-defaults.test.ts` 가 계산기를 서버에서 그려 같은 글자가 나오는지 잰다(그래서 `site.ts` · `features.ts` · `auth.ts` 는 `import.meta.env?.` 로 읽는다 — Node 에는 `import.meta.env` 가 없다).
+- **정적 결과**: decay · mda · specific-activity 계산기는 `client:only` 라 받은 HTML 에 결과 숫자가 없었다. 칸의 처음 값을 `lib/tool-defaults.ts` 한 곳에 두고 계산기가 그것을 기본값으로 쓴다. 같은 엔진 함수 · 같은 `fmt` 로 빌드 때 결과를 구해 `ToolPage` 의 `example` 칸(계산기 바로 아래 한 문단, 쪽마다 따로 쓴 문장)에 적는다. `tool-defaults.test.ts` 는 엔진 값을, `gate/check-render.mjs` 의 「정적 결과 = 계산기 첫 화면」 절은 브라우저에서 처음 연 계산기의 숫자와 정적 문단의 숫자가 같은지를 잰다. ★ 계산기를 Node 시험에서 그리려고 `site.ts` · `features.ts` · `auth.ts` 를 `import.meta.env?.` 로 바꾸지 않는다 — Vite 는 `import.meta.env.VITE_*` 꼴만 정적으로 바꿔 넣으므로 운영 빌드에서 저장 · 로그인이 꺼진다.
 - **beta-shield-materials**: P-32 숫자 풀이(두께 · 재료 · 둘째 층)와 문답 셋(P-32 두께, 납을 먼저 쓰지 않는 까닭, Sr-90 은 Y-90 으로). 값은 낱장과 같은 `nuclidePage` 필드에서 온다. 문답 배열 하나가 화면과 `FAQPage` 를 함께 만든다.
 - **xray-spectrum**: 「What this view leaves out」 문단에 Radiation Field Pro 본문 링크(여과 · HVL · ISO 4037 선질).
 

@@ -9,8 +9,8 @@
  *    로그인을 못 거는 것보다 큰 고장이다. 저장 버튼만 안내 문구로 바뀐다. */
 import { createClient, type SupabaseClient, type User } from "@supabase/supabase-js";
 
-const URL_ = import.meta.env?.VITE_SUPABASE_URL as string | undefined;
-const KEY_ = import.meta.env?.VITE_SUPABASE_ANON_KEY as string | undefined;
+const URL_ = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+const KEY_ = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 
 /* ★ 판정은 `lib/features.ts` 한 곳이다 — 내비·낱장·저장막대가 **같은 답**을 봐야
    「저장은 못 하는데 메뉴에는 있는」 어긋난 상태가 안 생긴다. */
