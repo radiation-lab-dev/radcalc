@@ -10,11 +10,18 @@
 
 우산 정본은 `radiation-lab`(우산 저장소), 절차는 `radiation-meter-tester/docs/umbrella-setup.md`.
 
-**판: v1.2.1 · 2026-11-02** — 정본은 `src/lib/version.ts`. 쪽마다 꼬리말 위에 판 줄이 서고 `/changelog/`(「Changes to the calculators and
+**판: v1.2.2 · 2026-11-02** — 정본은 `src/lib/version.ts`. 쪽마다 꼬리말 위에 판 줄이 서고 `/changelog/`(「Changes to the calculators and
 data」)가 판마다 바뀐 것을 든다. 번호 규칙: 계산값 · 자료가 바뀌면 가운데 자리, 글만 고치면 끝자리. 판을 올리면 `version.ts` ·
 `CITATION.cff`(version · date-released) · `.zenodo.json`(version · publication_date) · 이 줄을 함께 고친다 — `version.test.ts` 가 잰다.
 v1.1.0 은 Zenodo 새 판과 같은 번호이고, 태그 · 릴리스는 소유주 확인 뒤에 만든다. ★ 태그를 만드는 날이 `version.ts` 의 날짜와 다르면
 그날로 고친 뒤 태그한다(넷이 함께 따라와야 테스트가 통과한다) — 그래야 쪽의 판 줄 · CITATION 의 date-released · Zenodo 기록의 날짜가 같다.
+
+## ★★ 검색 보완 B — 판 1.2.2 (2026-11-02)
+
+작업지시 40-1 PR B. 엔진 · 자료 · 계산값은 그대로라 끝자리다.
+- **정적 결과**: decay · mda · specific-activity 계산기는 `client:only` 라 받은 HTML 에 결과 숫자가 없었다. 칸의 처음 값을 `lib/tool-defaults.ts` 한 곳에 두고 계산기가 그것을 기본값으로 쓴다. 같은 엔진 함수 · 같은 `fmt` 로 빌드 때 결과를 구해 `ToolPage` 의 `example` 칸(계산기 바로 아래 한 문단, 쪽마다 따로 쓴 문장)에 적는다. `tool-defaults.test.ts` 가 계산기를 서버에서 그려 같은 글자가 나오는지 잰다(그래서 `site.ts` · `features.ts` · `auth.ts` 는 `import.meta.env?.` 로 읽는다 — Node 에는 `import.meta.env` 가 없다).
+- **beta-shield-materials**: P-32 숫자 풀이(두께 · 재료 · 둘째 층)와 문답 셋(P-32 두께, 납을 먼저 쓰지 않는 까닭, Sr-90 은 Y-90 으로). 값은 낱장과 같은 `nuclidePage` 필드에서 온다. 문답 배열 하나가 화면과 `FAQPage` 를 함께 만든다.
+- **xray-spectrum**: 「What this view leaves out」 문단에 Radiation Field Pro 본문 링크(여과 · HVL · ISO 4037 선질).
 
 ## ★★ 검색 보완 A — 판 1.2.1 (2026-11-02)
 

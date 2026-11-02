@@ -18,5 +18,5 @@
  *    그 예외가 아일랜드 **수화(hydration)를 통째로 실패**시켜 **계산기 자체가 안 뜬다**
  *    (실측: `Error hydrating … Invalid supabaseUrl` × 7쪽). 저장은 곁가지 기능인데
  *    그것 때문에 본체가 죽는 것은 값이 안 맞는다 — 꼴이 틀리면 **저장만 꺼진다.** */
-const URL_OK = /^https?:\/\/[^\s]+$/.test(import.meta.env.VITE_SUPABASE_URL ?? "");
-export const SAVE_ENABLED = Boolean(URL_OK && import.meta.env.VITE_SUPABASE_ANON_KEY);
+const URL_OK = /^https?:\/\/[^\s]+$/.test(import.meta.env?.VITE_SUPABASE_URL ?? "");
+export const SAVE_ENABLED = Boolean(URL_OK && import.meta.env?.VITE_SUPABASE_ANON_KEY);

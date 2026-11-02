@@ -1,7 +1,7 @@
 import { SITE_NAME, CITATION_NAME, SITE_TAGLINE, SITE_URL_DEFAULT, BASE_PATH, UMBRELLA_NAME, DATA_SOURCES, SOURCE_CITATIONS, DOI, DOI_URL } from "../../brand";
 export { SITE_NAME, CITATION_NAME, SITE_TAGLINE, UMBRELLA_NAME, DATA_SOURCES, SOURCE_CITATIONS, BASE_PATH, DOI, DOI_URL };
 
-export const SITE_URL = (import.meta.env.SITE_URL as string | undefined) || SITE_URL_DEFAULT;
+export const SITE_URL = (import.meta.env?.SITE_URL as string | undefined) || SITE_URL_DEFAULT;
 
 /** 그릴 때 base 를 붙인다. ★ 멱등이다 — 두 번 걸어도 두 번 붙지 않는다. */
 export function u(path: string): string {

@@ -10,6 +10,7 @@ import { initialState, pick as pickState } from "../../lib/restore";
 import { useCommitted } from "../../lib/commit";
 import { CalcButton } from "../ui/CalcButton";
 import { Headline, Rows, fmt, Warn } from "../ui/Result";
+import { SA_DEFAULT as D0 } from "../../lib/tool-defaults";
 
 const N = nuclides as unknown as NuclideMap;
 const ACT = Object.keys(UNITS.activity.u);
@@ -17,10 +18,10 @@ const MASS = { ng: 1e-9, µg: 1e-6, mg: 1e-3, g: 1, kg: 1e3 } as const;
 
 export default function SpecificActivity() {
   const restored = initialState();
-  const [dir, setDir] = useState<"toMass" | "toActivity">(pickState(restored, "dir", "toMass"));
-  const [nuclide, setNuclide] = useState(pickState(restored, "nuclide", "Pu-239"));
-  const [act, setAct] = useState(pickState(restored, "act", 1)); const [actU, setActU] = useState(pickState(restored, "actU", "GBq"));
-  const [mass, setMass] = useState(pickState(restored, "mass", 1)); const [massU, setMassU] = useState<keyof typeof MASS>(pickState(restored, "massU", "g"));
+  const [dir, setDir] = useState<"toMass" | "toActivity">(pickState(restored, "dir", D0.dir));
+  const [nuclide, setNuclide] = useState(pickState(restored, "nuclide", D0.nuclide));
+  const [act, setAct] = useState(pickState(restored, "act", D0.act)); const [actU, setActU] = useState(pickState(restored, "actU", D0.actU));
+  const [mass, setMass] = useState(pickState(restored, "mass", D0.mass)); const [massU, setMassU] = useState<keyof typeof MASS>(pickState(restored, "massU", D0.massU));
 
   /* ★ 아래 계산은 전부 **커밋된 스냅숏**(c)에서 나온다 — 칸(act·mass…)이 아니다.
      칸을 고쳐도 답은 그대로 서 있고, 계산 단추가 켜진다. */

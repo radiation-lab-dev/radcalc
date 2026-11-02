@@ -6,6 +6,7 @@ import { betaRangeCm, DENSITY_G_CM3 } from "../engine";
 import { ACRYLIC } from "../lib/beta-absorbers";
 import { dominantProgeny } from "../lib/decay-chain";
 import { u } from "../lib/site";
+import { prefillPath } from "../lib/restore";
 
 /** ★★ 숫자를 글자로 적지 않는다 — 표도 문장도 엔진과 자료에서 파생시킨다.
  *  ★★ 흔적 가지 관례(소유주 결정 2026-10-29, T12) — 이 목록은 **세기 1% 이상 가지의 최대 끝점**으로 순위를 매기고 그 끝점의
@@ -42,10 +43,28 @@ const withProgeny = all.filter((r) => dominantProgeny(r.key)?.betaHotter);
  *  ★ 표에서 빼지 않는다 — 종점은 맞는 값이고, 빼면 다른 거짓이 된다. **밝힌다.** */
 const GAMMA_FLOOR = 0.01;
 const gammaLed = top.filter((r) => r.g >= GAMMA_FLOOR).sort((a, b) => b.g - a.g);
+
+/* ★ 2026-11-02(작업지시 40-1 PR B ②) — 숫자로 푼 예제와 문답. 값은 **낱장(`nuclidePage`)과 같은 필드**에서 가져온다 —
+   P-32 · Sr-90 · Y-90 은 기록된 가지가 하나라 낱장의 사정거리(가장 센 가지)와 이 쪽의 표(1% 이상 가지)가 같은 끝점을 쓴다.
+   ★ 핵종 하나를 고른 이유: 실험실에서 가장 흔히 손에 드는 단단한 베타가 P-32 이고, Sr-90 은 딸(Y-90)이 답을 바꾸는 대표다. */
+const P32 = nuclidePage("P-32"), SR = nuclidePage("Sr-90"), Y90 = nuclidePage("Y-90");
+const rangeOf = (p: typeof P32, m: string) => p.betaRanges.find((r) => r.material === m)!.cm;
+const pE = P32.betaMaxMeV!.toPrecision(3), srE = SR.betaMaxMeV!.toPrecision(3), yE = Y90.betaMaxMeV!.toPrecision(3);
+const pAcr = mm(rangeOf(P32, "acrylic")), pAl = mm(rangeOf(P32, "aluminum")), pWat = mm(rangeOf(P32, "water"));
+const srAcr = mm(rangeOf(SR, "acrylic")), yAcr = mm(rangeOf(Y90, "acrylic"));
+const yOverSr = (rangeOf(Y90, "acrylic") / rangeOf(SR, "acrylic")).toFixed(1);
+const faq = [
+  { q: "How thick does an acrylic shield for P-32 need to be?",
+    a: `${pAcr} mm. P-32 emits a single beta branch with a ${pE} MeV endpoint, and the Katz–Penfold range for that endpoint is ${pAcr} mm in acrylic (${pAl} mm in aluminium, ${pWat} mm in water). A 10 mm sheet is a common choice because it clears that range with margin.` },
+  { q: "Why not shield beta radiation with lead?",
+    a: `Because lead turns more of the electron energy into X-rays. For P-32 the thick-target estimate converts ${pct(P32.bremsLow)} of the beta energy to bremsstrahlung in acrylic and ${pct(P32.bremsLead)} in lead, ${ZR.toFixed(1)} times as much. Lead belongs behind the acrylic, to absorb the X-rays the acrylic does make.` },
+  { q: "What thickness stops Sr-90?",
+    a: `Not the thickness for Sr-90's own ${srE} MeV endpoint (${srAcr} mm of acrylic). A Sr-90 source carries its daughter Y-90 in equilibrium, whose ${yE} MeV beta needs ${yAcr} mm of acrylic, ${yOverSr} times as much. Size the shield on Y-90.` },
+];
 ---
 <Base title="Beta shielding materials and thickness"
       description="Beta shield thickness follows the endpoint energy; the material follows bremsstrahlung, which rises with atomic number, so lead does not go first."
-      schema="TechArticle">
+      schema="TechArticle" faq={faq}>
   <h1 class="text-[26px] font-semibold tracking-tight text-ink sm:text-[32px]">
     Beta shielding materials: how thick, and what to use
   </h1>
@@ -172,6 +191,26 @@ const gammaLed = top.filter((r) => r.g >= GAMMA_FLOOR).sort((a, b) => b.g - a.g)
       industrial sources it is not.
     </p>
 
+    <h2 id="worked-example">Worked example: a P-32 stock vial</h2>
+    <p>
+      <NuclideRef k="P-32" /> is the hard beta most laboratories actually handle. It has one beta branch, with
+      an endpoint of {pE} MeV and no gamma line, so the whole shielding question is the two steps above.
+    </p>
+    <ol class="my-3 list-decimal space-y-1 pl-6">
+      <li><b>Thickness.</b> The range for {pE} MeV is {pAcr} mm in acrylic, {pAl} mm in aluminium and
+        {" "}{pWat} mm in water. Any acrylic wall thicker than {pAcr} mm stops every electron.</li>
+      <li><b>Material.</b> In acrylic about {pct(P32.bremsLow)} of the beta energy comes back out as X-rays;
+        in lead the same estimate gives {pct(P32.bremsLead)}. Acrylic goes on the inside.</li>
+      <li><b>Second layer.</b> At the activities of a typical stock vial that {pct(P32.bremsLow)} is small,
+        and the acrylic alone is usually enough. A thin lead sheet behind it is worth adding only when the
+        activity is large enough for the X-ray dose rate outside the acrylic to matter.</li>
+    </ol>
+    <p>
+      The same numbers are on the <a href={u("/nuclides/p-32/")} class="underline">P-32 data sheet</a>.
+      {" "}<a href={u(prefillPath("beta", { nuclide: "P-32" }))} data-prefill="P-32" class="underline">Open
+      the beta calculator with P-32</a> to try another absorber or thickness, or to put an activity on it.
+    </p>
+
     {withProgeny.length > 0 && (
       <>
         <h2>Which endpoint to size on</h2>
@@ -198,6 +237,15 @@ const gammaLed = top.filter((r) => r.g >= GAMMA_FLOOR).sort((a, b) => b.g - a.g)
       source already sits in, which for a sealed source may be doing most of the work described
       here before anything is added.
     </p>
+
+    {/* ★ 문답은 위 `faq` 배열 하나에서 화면과 FAQPage 구조화 데이터가 함께 나온다(`Faq.astro` 와 같은 방식). */}
+    <h2 id="faq">FAQ</h2>
+    {faq.map((f) => (
+      <>
+        <h3>{f.q}</h3>
+        <p>{f.a}</p>
+      </>
+    ))}
 
     <h2>Where to go next</h2>
     <ul class="my-3 space-y-1">

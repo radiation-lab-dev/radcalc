@@ -8,6 +8,7 @@ import { initialState, pick as pickState } from "../../lib/restore";
 import { useCommitted } from "../../lib/commit";
 import { CalcButton } from "../ui/CalcButton";
 import { Headline, Rows, fmt, Warn } from "../ui/Result";
+import { MDA_DEFAULT as D0 } from "../../lib/tool-defaults";
 
 type Mode = "scaler" | "scan";
 const CONF = [
@@ -21,21 +22,21 @@ const DETECT_PCT: Record<string, string> = { "1.645": "95", "1.96": "97.5", "2.3
 
 export default function Mda() {
   const restored = initialState();
-  const [mode, setMode] = useState<Mode>(pickState(restored, "mode", "scaler"));
-  const [k, setK] = useState(pickState(restored, "k", "1.645"));
+  const [mode, setMode] = useState<Mode>(pickState(restored, "mode", D0.mode));
+  const [k, setK] = useState(pickState(restored, "k", D0.k));
   // 고정 계수
-  const [bgCpm, setBgCpm] = useState(pickState(restored, "bgCpm", 300));
-  const [timeS, setTimeS] = useState(pickState(restored, "timeS", 600));
-  const [eff, setEff] = useState(pickState(restored, "eff", 25));
-  const [useSurface, setUseSurface] = useState(pickState(restored, "useSurface", false));
-  const [surfEff, setSurfEff] = useState(pickState(restored, "surfEff", 50));
-  const [areaCm2, setAreaCm2] = useState(pickState(restored, "areaCm2", 100));
-  const [unit, setUnit] = useState<typeof OUT[number]>(pickState(restored, "unit", "Bq"));
+  const [bgCpm, setBgCpm] = useState(pickState(restored, "bgCpm", D0.bgCpm));
+  const [timeS, setTimeS] = useState(pickState(restored, "timeS", D0.timeS));
+  const [eff, setEff] = useState(pickState(restored, "eff", D0.eff));
+  const [useSurface, setUseSurface] = useState(pickState(restored, "useSurface", D0.useSurface));
+  const [surfEff, setSurfEff] = useState(pickState(restored, "surfEff", D0.surfEff));
+  const [areaCm2, setAreaCm2] = useState(pickState(restored, "areaCm2", D0.areaCm2));
+  const [unit, setUnit] = useState<typeof OUT[number]>(pickState(restored, "unit", D0.unit));
   // 스캔
-  const [speed, setSpeed] = useState(pickState(restored, "speed", 5));
-  const [width, setWidth] = useState(pickState(restored, "width", 10));
-  const [obsEff, setObsEff] = useState(pickState(restored, "obsEff", 50));
-  const [dPrime, setDPrime] = useState(pickState(restored, "dPrime", 1.38));
+  const [speed, setSpeed] = useState(pickState(restored, "speed", D0.speed));
+  const [width, setWidth] = useState(pickState(restored, "width", D0.width));
+  const [obsEff, setObsEff] = useState(pickState(restored, "obsEff", D0.obsEff));
+  const [dPrime, setDPrime] = useState(pickState(restored, "dPrime", D0.dPrime));
 
   /* ★ 답은 **커밋된 스냅숏**(c)에서만 나온다 — 칸 상태는 그리는 데만 쓴다. */
   const { c, dirty, invalid, commit, keys } = useCommitted({
