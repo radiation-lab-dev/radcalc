@@ -7,14 +7,22 @@ import NuclideRef from "../components/NuclideRef.astro";
 import { EX } from "../data/worked-examples";
 import { fractionAfter, pct1 } from "../lib/guide-tables";
 import { prefillPath } from "../lib/restore";
+import { DECAY_DEFAULT, decayDefaultResult } from "../lib/tool-defaults";
 const D = EX.decay;
 /* ★ 2026-11-02(작업지시 40-1 ①) — 「lu 177 decay calculator」. 계산기 프리셋 · 노트 · 낱장으로 잇는다.
    하루 손실률은 붕괴 보정 쪽과 **같은 함수**에서 나온다(글자로 적지 않는다). */
 const luPerDay = 1 - fractionAfter("Lu-177", 1440);
 const luPreset = prefillPath("decay", { nuclide: "Lu-177", a0: 7.4, unit: "GBq", t: 7, tu: "d" });
+const d0 = DECAY_DEFAULT, r0 = decayDefaultResult();
 ---
 <ToolPage slug="decay">
   <Decay slot="tool" client:only="react" />
+  <p slot="example">
+    <strong class="text-ink">The opening example, worked out:</strong> {d0.a0} {d0.unit} of {d0.nuclide} left
+    for {d0.t} years falls to <strong class="text-ink">{r0.remaining} {d0.unit}</strong>. That is {r0.pct}% of the
+    starting activity after {r0.halves} half-lives (half-life {r0.halfLife}); the other {r0.decayed} {d0.unit} has
+    decayed away.
+  </p>
   <Fragment slot="prose">
     <h2>The one equation</h2>
     <p>

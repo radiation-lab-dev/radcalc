@@ -4,10 +4,17 @@ import SpecificActivity from "../components/calc/SpecificActivity.tsx";
 import Faq from "../components/Faq.astro";
 import NuclideRef from "../components/NuclideRef.astro";
 import { EX } from "../data/worked-examples";
+import { SA_DEFAULT, saDefaultResult } from "../lib/tool-defaults";
 const D = EX.specificActivity;
+const s0 = SA_DEFAULT, r0 = saDefaultResult();
 ---
 <ToolPage slug="specific-activity">
   <SpecificActivity slot="tool" client:only="react" />
+  <p slot="example">
+    <strong class="text-ink">The calculator starts on {s0.act} {s0.actU} of {s0.nuclide}.</strong> With a
+    specific activity of {r0.saBqG} Bq/g ({r0.saCiG} Ci/g, half-life {r0.halfLife}), that activity is
+    <strong class="text-ink">{r0.mass} {r0.massUnit}</strong> of the pure isotope.
+  </p>
   <Fragment slot="prose">
     <h2>Where the number comes from</h2>
     <p>

@@ -4,10 +4,18 @@ import Mda from "../components/calc/Mda.tsx";
 import { u } from "../lib/site";
 import Faq from "../components/Faq.astro";
 import { EX } from "../data/worked-examples";
+import { MDA_DEFAULT, mdaDefaultResult } from "../lib/tool-defaults";
 const M = EX.mda;
+const m0 = MDA_DEFAULT, r0 = mdaDefaultResult();
 ---
 <ToolPage slug="mda">
   <Mda slot="tool" client:only="react" />
+  <p slot="example">
+    <strong class="text-ink">What the default count gives:</strong> a {m0.timeS} s count on a {m0.bgCpm} cpm
+    background with {m0.eff}% efficiency collects {r0.bgCounts} background counts. At k = {m0.k} the critical
+    level L<sub>C</sub> is {r0.lc} counts and the detection limit L<sub>D</sub> is {r0.ld} counts, so the
+    MDA is <strong class="text-ink">{r0.mda} Bq</strong>. Counting four times as long lowers it only to {r0.mdaFour} Bq.
+  </p>
   <Fragment slot="prose">
     <h2>Three numbers that are not the same</h2>
     <p>

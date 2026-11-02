@@ -11,6 +11,7 @@ import { initialState, pick as pickState } from "../../lib/restore";
 import { useCommitted } from "../../lib/commit";
 import { CalcButton } from "../ui/CalcButton";
 import { Headline, Rows, fmt, Warn } from "../ui/Result";
+import { DECAY_DEFAULT as D0 } from "../../lib/tool-defaults";
 
 const N = nuclides as unknown as NuclideMap;
 const ACT = Object.keys(UNITS.activity.u);
@@ -27,14 +28,14 @@ const MODES: { value: Mode; label: string; hint: string }[] = [
 
 export default function Decay() {
   const restored = initialState();
-  const [mode, setMode] = useState<Mode>(pickState(restored, "mode", "remaining"));
-  const [nuclide, setNuclide] = useState(pickState(restored, "nuclide", "Co-60"));
-  const [a0, setA0] = useState(pickState(restored, "a0", 37));
-  const [unit, setUnit] = useState(pickState(restored, "unit", "GBq"));
-  const [t, setT] = useState(pickState(restored, "t", 5));
-  const [tu, setTu] = useState<TimeUnit>(pickState(restored, "tu", "y"));
-  const [target, setTarget] = useState(pickState(restored, "target", 1));
-  const [a1, setA1] = useState(pickState(restored, "a1", 18.5));
+  const [mode, setMode] = useState<Mode>(pickState(restored, "mode", D0.mode));
+  const [nuclide, setNuclide] = useState(pickState(restored, "nuclide", D0.nuclide));
+  const [a0, setA0] = useState(pickState(restored, "a0", D0.a0));
+  const [unit, setUnit] = useState(pickState(restored, "unit", D0.unit));
+  const [t, setT] = useState(pickState(restored, "t", D0.t));
+  const [tu, setTu] = useState<TimeUnit>(pickState(restored, "tu", D0.tu));
+  const [target, setTarget] = useState(pickState(restored, "target", D0.target));
+  const [a1, setA1] = useState(pickState(restored, "a1", D0.a1));
 
   /* ★ 답은 **커밋된 스냅숏**(c)에서만 나온다 — 칸을 고쳐도 누르기 전까지 움직이지 않는다. */
   const { c, dirty, invalid, commit, keys } = useCommitted({ mode, nuclide, a0, unit, t, tu, target, a1 });
