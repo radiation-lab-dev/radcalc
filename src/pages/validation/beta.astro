@@ -164,8 +164,9 @@ const title = "Beta calculator validation — what an empirical fit can and cann
 const description =
   "The infinite-medium dose rate derived exactly from energy conservation, and the three empirical fits behind the shielding mode checked for form, domain and their measured relationship to NIST electron data — with what could not be established listed rather than glossed.";
 ---
-<Base title={title} description={description} schema="TechArticle">
-  <nav class="tap-list mb-4 flex flex-wrap items-center gap-x-1.5 text-[12px] text-ink-faint">
+<Base title={title} description={description} schema="TechArticle"
+      breadcrumb={[{ name: "Validation", path: u("/validation/") }, { name: "Beta" }]}>
+  <nav aria-label="Breadcrumb" class="tap-list mb-4 flex flex-wrap items-center gap-x-1.5 text-[12px] text-ink-faint">
     <a href="/" class="hover:text-ink">Home</a> <span aria-hidden>/</span>
     <a href={u("/validation/")} class="hover:text-ink">Validation</a> <span aria-hidden>/</span> Beta
   </nav>

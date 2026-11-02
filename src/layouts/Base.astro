@@ -4,6 +4,7 @@ import { SITE_NAME, UMBRELLA_NAME, DATA_SOURCES, SITE_URL, u, canonical, canonic
 import { TOOLS, menuName } from "../lib/tools";
 import { VERSION, dateText } from "../lib/version";
 import ogManifest from "../data/og-manifest.json";
+import { lastmodFor } from "../lib/lastmod.mjs";
 import SiteHeader from "../components/brand/SiteHeader.astro";
 /* ★★ 공통 셸 v3(2026-10-28) — 머리글 · 꼬리말 · head 자산은 정본 `radiation-lab/public/shell/` 의 사본(`shell/`,
  *  `npm run sync-shell`)이 그린다. 옛 `ThemeToggle` · `AccountChip` · `ShareRow` 는 걷었다 — 테마 단추와 계정 칩은
@@ -35,9 +36,22 @@ interface Props {
   schemaDescription?: string;
   /** 쪽 노드의 `citation` 에 더할 출처 이름 — 손글 아래 「Sources」 목록에 실제로 보이는 것만 받는다(T7). */
   citations?: readonly string[];
+  /** ★ 2026-11-02(작업지시 40-1 ③) — 쪽 위에 **실제로 보이는** 빵부스러기. 있으면 `BreadcrumbList` 노드를 단다.
+   *  맨 앞의 Home(`/`)은 여기서 붙이므로 그 뒤 칸만 준다. 마지막 칸(이 쪽)은 `path` 없이 — 주소는 이 쪽의 canonical 이다.
+   *  `path` 는 화면 링크의 href 그대로다(`u("/nuclides/")` · `"/#tools"` — base 를 여기서 다시 붙이지 않는다).
+   *  ★ 화면에 빵부스러기가 없는 쪽에는 주지 않는다(보이지 않는 것을 구조화 데이터에만 싣지 않는다). */
+  breadcrumb?: readonly { name: string; path?: string }[];
 }
-const { title, description, noindex, share = true, schema = "WebApplication", article, faq, notFound = false, schemaDescription, citations = [] } = Astro.props;
+const { title, description, noindex, share = true, schema = "WebApplication", article, faq, notFound = false, schemaDescription, citations = [], breadcrumb } = Astro.props;
 const here = Astro.url.pathname;
+const HOME_URL = new URL("/", SITE_URL).href;
+const crumbs = breadcrumb?.length && !notFound
+  ? [{ name: "Home", url: HOME_URL }, ...breadcrumb.map((c) => ({ name: c.name, url: c.path ? new URL(c.path, SITE_URL).href : canonical(here) }))]
+  : [];
+/* ★ 2026-11-02(작업지시 40-1 ⑤) — `TechArticle`(낱장 · 방법 · 검증 보고서 등)의 수정일은 사이트맵 `lastmod` 와 **같은 값**이다
+   (`lib/lastmod.mjs` — 그 쪽 내용이 마지막으로 바뀐 커밋 날짜). 모르면(얕은 클론) 날짜를 싣지 않는다 — 지어내지 않는다. */
+const techModified = schema === "TechArticle" && !notFound ? lastmodFor(canonicalPath(here)) : null;
+const ORG = { "@type": "Organization", name: UMBRELLA_NAME, url: HOME_URL };
 /** ★★ 압축 고정 바의 칸 — **머리글과 같은 글자·순서**다(명세 §1, 2026-10-06 ⑥).
  *  ★ 바에는 메뉴 판을 다시 싣지 않는다 — 같은 일곱 링크가 쪽마다 두 벌 서면 쪽 사이 겹침만 는다.
  *    바의 `Calculators` 는 홈의 계산기 묶음(`/#tools`)으로, `Pro workbenches` 는 홈의 워크벤치 묶음(`/#workbenches`)으로 간다.
@@ -190,12 +204,25 @@ const footerHtml = renderFooter(spec, { section: "calc", pageUrl: shareOf.pageUr
             ...(schema === "Article" && article ? {
               datePublished: article.published,
               dateModified: article.modified,
-              author: { "@type": "Organization", name: UMBRELLA_NAME, url: new URL("/", SITE_URL).href },
-              publisher: { "@type": "Organization", name: UMBRELLA_NAME, url: new URL("/", SITE_URL).href },
+              author: ORG,
+              publisher: ORG,
               image: ogImage,
               mainEntityOfPage: canonical(here),
             } : {}),
+            ...(schema === "TechArticle" ? {
+              ...(techModified ? { dateModified: techModified } : {}),
+              author: ORG,
+              publisher: ORG,
+              mainEntityOfPage: canonical(here),
+            } : {}),
           }]),
+      ...(crumbs.length
+        ? [{
+            "@type": "BreadcrumbList",
+            "@id": `${canonical(here)}#breadcrumb`,
+            itemListElement: crumbs.map((c, i) => ({ "@type": "ListItem", position: i + 1, name: c.name, item: c.url })),
+          }]
+        : []),
       /* ★ 쪽의 주 노드(`#app`·`#page`)를 바꾸지 않고 **곁에** 선다 — 계산기는 계산기, 문답은 문답이다. */
       ...(faq?.length
         ? [{

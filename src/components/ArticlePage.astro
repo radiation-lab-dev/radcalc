@@ -11,7 +11,8 @@ if (!a) throw new Error(`articles.ts 에 없는 글이다: ${slug} (등록된 �
 /* ★ 게시 · 검토 날짜는 등록부 한 곳이다. 구조화 데이터와 화면이 같은 값을 읽는다. */
 ---
 <Base title={a.title} description={a.description} schema="Article" schemaDescription={a.summary}
-      article={{ published: a.published, modified: a.reviewed }} citations={a.sources.map((s) => s.label)}>
+      article={{ published: a.published, modified: a.reviewed }} citations={a.sources.map((s) => s.label)}
+      breadcrumb={[{ name: "Notes", path: u("/notes/") }, { name: a.h1 }]}>
   <nav aria-label="Breadcrumb" class="text-[13px] text-ink-faint">
     <a href={u("/notes/")} class="underline underline-offset-2 hover:text-ink">Notes</a>
   </nav>

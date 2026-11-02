@@ -31,7 +31,7 @@ import { halfLifeForSearch, sciText, betaEndpointBranch, gammaVs } from "./nucli
 export type SeoAngle = "gamma" | "beta" | "alpha" | "plain";
 
 export interface NuclideSeo {
-  /** `<title>` 에 들어가는 몫. 뒤에 ` · RadCalc` 이 붙는다(`Base.astro`). */
+  /** `<title>` 에 들어가는 몫. 뒤에 ` · Radiation Lab` 이 붙는다(`Base.astro` 의 `SITE_NAME`). */
   title: string;
   /** `<meta name="description">`. */
   description: string;
@@ -39,8 +39,10 @@ export interface NuclideSeo {
   angle: SeoAngle;
 }
 
-/** 제목 길이 예산. 구글이 대략 60자 남짓을 보이고 브랜드 접미사가 10자를 먹는다. */
-export const TITLE_MAX = 58;
+/** 제목 길이 예산 — **꼬리를 뺀 몫**이다. 구글이 대략 60자를 보이고 꼬리 ` · Radiation Lab` 이 16자를 먹는다.
+ *  ★ 2026-11-02(작업지시 40-1 ⑥) — 전에는 58 이 이 몫에만 걸려 실제 `<title>` 은 68~70자였다(Co-60 68 · Lu-177 69 · Pu-239 70).
+ *    꼬리가 바뀌면 `nuclide-seo.test.ts` 가 전체 길이로 다시 잰다. */
+export const TITLE_MAX = 60 - " · Radiation Lab".length;
 /** 설명 길이 예산. 155자를 넘으면 뒤가 잘린다. */
 export const DESC_MAX = 165;
 export const DESC_MIN = 90;
@@ -64,6 +66,10 @@ export const GAMMA_LEAD_RATIO = 1 / 1000;
 export const gammaLeadsFor = (key: string) =>
   key === "Cs-137" || gammaVs(key, "Cs-137") >= GAMMA_LEAD_RATIO;
 
+/** ★ 2026-11-02(작업지시 40-1 ①) — 낱장 제목이 「decay」를 드는 핵종. 근거는 질의다: 「lu 177 decay calculator」(Search Console
+ *  9/9~10/30, 순위 60). 짐작으로 늘리지 않는다 — 질의가 확인된 핵종만 넣는다. 이 낱장은 붕괴 보정 표와 계산기 프리셋으로 링크한다. */
+export const DECAY_ASKED = new Set(["Lu-177"]);
+
 const sig = (x: number, d = 3) => (Number.isFinite(x) ? x.toPrecision(d) : "—");
 
 export function nuclideSeo(p: NuclidePage): NuclideSeo {
@@ -74,11 +80,15 @@ export function nuclideSeo(p: NuclidePage): NuclideSeo {
   const hl = halfLifeForSearch(n);
   const sa = `specific activity ${sciText(n.sa_bq_g)} Bq/g`;
 
-  /* 감마가 **앞설 만한** 것 — **핵종별 차폐 두께**가 비어 있는 자리에서 답하는 것이다. */
+  /* 감마가 **앞설 만한** 것 — **핵종별 차폐 두께**가 비어 있는 자리에서 답하는 것이다.
+     ★ 2026-11-02 — 60자 안에 들이려고 「and dose rate」를 뺐다. 비어 있는 질의는 「<핵종> half value layer lead」 쪽이고,
+       선량률은 설명의 Γ 가 든다. 「붕괴」를 묻는 핵종은 `DECAY_ASKED` 가 반가층 앞에 둔다. */
   if (p.gamma > 0 && gammaLeadsFor(key)) {
     return {
       angle: "gamma",
-      title: `${key} half-life, lead half-value layer and dose rate`,
+      title: DECAY_ASKED.has(key)
+        ? `${key} half-life, decay correction, lead HVL`
+        : `${key} half-life, lead half-value layer`,
       description:
         `${name} (${key}): half-life ${hl}, ${sa}, Γ = ${sig(p.gamma)} mGy·m²/(GBq·h). ` +
         `Lead and concrete half-value layers.`,
@@ -90,7 +100,7 @@ export function nuclideSeo(p: NuclidePage): NuclideSeo {
     const end = betaEndpointBranch(key);
     return {
       angle: "beta",
-      title: `${key} half-life, beta range and bremsstrahlung`,
+      title: `${key} half-life, beta range, bremsstrahlung`,
       description:
         `${name} (${key}): half-life ${hl}, ${sa}` +
         (end ? `, beta endpoint ${sig(end.maxKeV, 4)} keV` : "") +
@@ -98,11 +108,12 @@ export function nuclideSeo(p: NuclidePage): NuclideSeo {
     };
   }
 
-  /* 알파 20종 — Γ 상수 하나로 도는 도구는 이들을 아예 목록에 넣지 않는다. */
+  /* 알파 20종 — Γ 상수 하나로 도는 도구는 이들을 아예 목록에 넣지 않는다.
+     ★ 2026-11-02 — 60자 안에 들이려고 「alpha energies」를 설명으로 넘겼다. 남긴 쪽은 실제 질의다(「specific activity of pu-239」, 순위 8.7). */
   if (n.alpha?.length) {
     return {
       angle: "alpha",
-      title: `${key} half-life, specific activity and alpha energies`,
+      title: `${key} half-life and specific activity`,
       description:
         `${name} (${key}): half-life ${hl}, ${sa}. ` +
         `Alpha line energies and emission probabilities from IAEA data.`,
@@ -112,7 +123,8 @@ export function nuclideSeo(p: NuclidePage): NuclideSeo {
   /* 나머지 6종 — 주장할 방출이 없다. 확실한 것만 든다. */
   return {
     angle: "plain",
-    title: `${key} half-life, decay mode and specific activity`, // ★ 이 각은 처음부터 반감기가 앞이었다
+    /* ★ 이 각은 처음부터 반감기가 앞이었다. 2026-11-02 — 60자 안에 들이려고 비방사능은 설명 첫머리에 맡겼다(Ir-192m2 처럼 기호가 8자다). */
+    title: `${key} half-life and decay mode`,
     description:
       /* ★ 붕괴형식을 설명에서 뺐다 — 제목이 이미 들고, 문구가 길다(「electron capture with
          beta-plus」가 30자다). Ni-59·Ta-182m1 이 175·173자로 예산을 넘겼고 테스트가 잡았다. */

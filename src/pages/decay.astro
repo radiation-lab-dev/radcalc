@@ -3,8 +3,15 @@ import ToolPage from "../components/ToolPage.astro";
 import Decay from "../components/calc/Decay.tsx";
 import { u } from "../lib/site";
 import Faq from "../components/Faq.astro";
+import NuclideRef from "../components/NuclideRef.astro";
 import { EX } from "../data/worked-examples";
+import { fractionAfter, pct1 } from "../lib/guide-tables";
+import { prefillPath } from "../lib/restore";
 const D = EX.decay;
+/* ★ 2026-11-02(작업지시 40-1 ①) — 「lu 177 decay calculator」. 계산기 프리셋 · 노트 · 낱장으로 잇는다.
+   하루 손실률은 붕괴 보정 쪽과 **같은 함수**에서 나온다(글자로 적지 않는다). */
+const luPerDay = 1 - fractionAfter("Lu-177", 1440);
+const luPreset = prefillPath("decay", { nuclide: "Lu-177", a0: 7.4, unit: "GBq", t: 7, tu: "d" });
 ---
 <ToolPage slug="decay">
   <Decay slot="tool" client:only="react" />
@@ -24,6 +31,14 @@ const D = EX.decay;
       storage periods are quoted the way they are. For dosing, the note on
       {" "}<a href={u("/radiopharmaceutical-decay/")} class="underline">decay correction for
       radiopharmaceuticals</a> gives Tc-99m and F-18 at 15-minute steps and Lu-177 at 6-hour steps.
+    </p>
+    <p>
+      Lu-177 is counted in days rather than hours: a therapy dose loses about {pct1(luPerDay)}% of its
+      activity each day. <a href={u(luPreset)} data-prefill="Lu-177" class="underline">Open the calculator with
+      Lu-177 and 7.4&nbsp;GBq filled in</a>, or read
+      {" "}<a href={u("/notes/lu-177-decay-worked-example/")} class="underline">a Lu-177 dose followed
+      from calibration to storage</a>. The <NuclideRef k="Lu-177" /> sheet gives the evaluated
+      half-life and explains why material made from Lu-176 also carries the long-lived Lu-177m.
     </p>
 
     <h2>Finding a half-life from two measurements</h2>

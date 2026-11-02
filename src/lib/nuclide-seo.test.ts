@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { ALL_KEYS, NUCLIDES, nuclidePage } from "./nuclides.ts";
 import { nuclideSeo, gammaLeadsFor, TITLE_MAX, DESC_MAX, DESC_MIN, DESC_PAGE_MAX } from "./nuclide-seo.ts";
 import { PAGE_KEYS } from "./nuclide-pages.ts";
+import { SITE_NAME } from "../../brand.ts";
 
 const ROWS = ALL_KEYS.map((key) => ({ key, p: nuclidePage(key), seo: nuclideSeo(nuclidePage(key)) }));
 
@@ -11,6 +12,9 @@ test("제목·설명이 검색 결과에서 잘리지 않는다", () => {
      브랜드 접미사까지 68자라 이미 잘리고 있었다. 자료가 늘어도 이 검사가 먼저 깨진다. */
   for (const { key, seo } of ROWS) {
     assert.ok(seo.title.length <= TITLE_MAX, `${key} 제목 ${seo.title.length}자 > ${TITLE_MAX}: ${seo.title}`);
+    /* ★ 2026-11-02 — 예산은 **꼬리까지 붙은 `<title>`** 에 건다. 전에는 몫만 재어 실제 제목이 68~70자로 나갔다. */
+    const full = `${seo.title} · ${SITE_NAME}`;
+    assert.ok(full.length <= 60, `${key} 전체 제목 ${full.length}자 > 60: ${full}`);
     assert.ok(seo.description.length <= DESC_MAX, `${key} 설명 ${seo.description.length}자 > ${DESC_MAX}`);
     assert.ok(seo.description.length >= DESC_MIN, `${key} 설명 ${seo.description.length}자 < ${DESC_MIN} — 너무 얇다`);
   }
@@ -118,4 +122,12 @@ test("★ 쪽이 있는 핵종의 설명문 — 155자 안쪽, 큰 단위를 작
     if (sec >= 365.2425 * 86400) assert.equal(lead, "years", `${key}: 1년이 넘는데 ${lead} — ${d}`);
     else if (sec >= 2 * 86400) assert.equal(lead, "days", `${key}: 2일이 넘는데 ${lead} — ${d}`);
   }
+});
+
+test("★ Lu-177 낱장 제목이 「decay」를 든다 — 「lu 177 decay calculator」 질의(2026-11-02)", () => {
+  const seo = nuclideSeo(nuclidePage("Lu-177"));
+  assert.match(seo.title, /\bdecay\b/i, seo.title);
+  assert.equal(seo.angle, "gamma");
+  /* 질의가 확인되지 않은 핵종에는 달지 않는다. */
+  assert.ok(!/decay/i.test(nuclideSeo(nuclidePage("Co-60")).title));
 });

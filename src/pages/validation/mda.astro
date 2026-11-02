@@ -124,8 +124,9 @@ const title = "MDA validation — reproducing MARSSIM's own worked examples";
 const description =
   "Critical level, detection limit and scan MDC checked against the worked examples printed in MARSSIM itself, with the deviation from its L_D constant measured and its direction stated.";
 ---
-<Base title={title} description={description} schema="TechArticle">
-  <nav class="tap-list mb-4 flex flex-wrap items-center gap-x-1.5 text-[12px] text-ink-faint">
+<Base title={title} description={description} schema="TechArticle"
+      breadcrumb={[{ name: "Validation", path: u("/validation/") }, { name: "Detection limits" }]}>
+  <nav aria-label="Breadcrumb" class="tap-list mb-4 flex flex-wrap items-center gap-x-1.5 text-[12px] text-ink-faint">
     <a href="/" class="hover:text-ink">Home</a> <span aria-hidden>/</span>
     <a href={u("/validation/")} class="hover:text-ink">Validation</a> <span aria-hidden>/</span> Detection limits
   </nav>

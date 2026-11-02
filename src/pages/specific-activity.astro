@@ -2,6 +2,7 @@
 import ToolPage from "../components/ToolPage.astro";
 import SpecificActivity from "../components/calc/SpecificActivity.tsx";
 import Faq from "../components/Faq.astro";
+import NuclideRef from "../components/NuclideRef.astro";
 import { EX } from "../data/worked-examples";
 const D = EX.specificActivity;
 ---
@@ -94,9 +95,10 @@ const D = EX.specificActivity;
 
     <h3>Why a gram of plutonium is not like a gram of uranium</h3>
     <p>
-      Choose “Mass → activity” and enter 1&nbsp;g, first for U-238 and then for Pu-239. Then switch to
-      “Activity → mass”, choose Am-241 and enter 37&nbsp;kBq, the typical activity in an ionisation
-      smoke detector.
+      Choose “Mass → activity” and enter 1&nbsp;g, first for <NuclideRef k="U-238" /> and then for
+      {" "}<NuclideRef k="Pu-239" />. Then switch to “Activity → mass”, choose <NuclideRef k="Am-241" /> and
+      enter 37&nbsp;kBq, the typical activity in an ionisation smoke detector. Each name opens the data
+      sheet, which lists the same specific activity alongside the half-life and the alpha lines.
     </p>
     <div class="not-prose my-3 pin-first table-fit" tabindex="0">
       <table>

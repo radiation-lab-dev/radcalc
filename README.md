@@ -10,11 +10,19 @@
 
 우산 정본은 `radiation-lab`(우산 저장소), 절차는 `radiation-meter-tester/docs/umbrella-setup.md`.
 
-**판: v1.2.0 · 2026-11-01** — 정본은 `src/lib/version.ts`. 쪽마다 꼬리말 위에 판 줄이 서고 `/changelog/`(「Changes to the calculators and
+**판: v1.2.1 · 2026-11-02** — 정본은 `src/lib/version.ts`. 쪽마다 꼬리말 위에 판 줄이 서고 `/changelog/`(「Changes to the calculators and
 data」)가 판마다 바뀐 것을 든다. 번호 규칙: 계산값 · 자료가 바뀌면 가운데 자리, 글만 고치면 끝자리. 판을 올리면 `version.ts` ·
 `CITATION.cff`(version · date-released) · `.zenodo.json`(version · publication_date) · 이 줄을 함께 고친다 — `version.test.ts` 가 잰다.
 v1.1.0 은 Zenodo 새 판과 같은 번호이고, 태그 · 릴리스는 소유주 확인 뒤에 만든다. ★ 태그를 만드는 날이 `version.ts` 의 날짜와 다르면
 그날로 고친 뒤 태그한다(넷이 함께 따라와야 테스트가 통과한다) — 그래야 쪽의 판 줄 · CITATION 의 date-released · Zenodo 기록의 날짜가 같다.
+
+## ★★ 검색 보완 A — 판 1.2.1 (2026-11-02)
+
+Search Console(9/9~10/30) 검색어를 보고 고친 판이다(작업지시 40-1 PR A). 엔진 · 자료 · 계산값은 그대로라 끝자리다.
+- **Lu-177 ↔ decay**: decay 계산기 제목 · 소개에 Lu-177(`lib/tools.ts` 의 `seoTitle` · `blurb`), 해설에 Lu-177 하루 손실 · 프리셋 · 노트 · 낱장 링크. Lu-177 낱장 제목에 decay(`nuclide-seo.ts` 의 `DECAY_ASKED`), 낱장 → 노트 링크.
+- **낱장 제목 60자**: `TITLE_MAX` 가 접미 「 · Radiation Lab」을 빼고 잰다(전에는 몫에만 58이 걸려 실제 68~70자). `nuclide-seo.test.ts` 가 전체 길이를 잰다.
+- **lastmod**: 도구 쪽은 `.astro` + 등록부(`tools.ts`)와 문답(`tool-faq.ts`)에서 **그 도구 항목**이 바뀐 커밋(`git log -L`)을 센다. 틀(`ToolPage.astro`)은 세지 않는다 — 고치면 모든 도구가 한꺼번에 바뀌어 날짜가 뜻을 잃는다. `lastmod.test.ts`.
+- **구조화 데이터**: `Base.astro` 의 `breadcrumb` — 화면에 빵부스러기가 있는 쪽만 `BreadcrumbList`(Home → 구역 → 쪽). `TechArticle` 에 `dateModified`(사이트맵 lastmod 와 같은 값) · author · publisher(Organization Radiation Lab).
 
 ## ★★ 아크릴 값 정합 — 판 1.2.0 (2026-11-01)
 

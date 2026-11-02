@@ -23,8 +23,9 @@ const title = "Validation — how the results on this site are checked";
 const description =
   "Hand calculations set against what each calculator returns, with the sources used, the acceptance criterion and the coverage. One report per tool.";
 ---
-<Base title={title} description={description} schema="CollectionPage">
-  <nav class="tap-list mb-4 flex flex-wrap items-center gap-x-1.5 text-[12px] text-ink-faint">
+<Base title={title} description={description} schema="CollectionPage"
+      breadcrumb={[{ name: "Validation" }]}>
+  <nav aria-label="Breadcrumb" class="tap-list mb-4 flex flex-wrap items-center gap-x-1.5 text-[12px] text-ink-faint">
     <a href="/" class="hover:text-ink">Home</a> <span aria-hidden>/</span> Validation
   </nav>
 

@@ -34,8 +34,9 @@ const extremeKey = ALL_KEYS.filter((k) => Number.isFinite(leadRatio(k))).sort((a
 const extremeRatio = leadRatio(extremeKey).toFixed(0);
 ---
 <Base schema="CollectionPage" title="Nuclide reference — half-lives, emission lines, dose rates and shielding"
-      description={`Reference sheets for ${rows.length} nuclides: half-life, decay mode, specific activity, emission lines with their share of the dose rate, spectrum-solved half- and tenth-value layers, beta range and bremsstrahlung — computed from IAEA decay data and NIST attenuation coefficients.`}>
-  <nav class="tap-list mb-4 flex flex-wrap items-center gap-x-1.5 text-[12px] text-ink-faint">
+      description={`Reference sheets for ${rows.length} nuclides: half-life, decay mode, specific activity, emission lines with their share of the dose rate, spectrum-solved half- and tenth-value layers, beta range and bremsstrahlung — computed from IAEA decay data and NIST attenuation coefficients.`}
+      breadcrumb={[{ name: "Nuclides" }]}>
+  <nav aria-label="Breadcrumb" class="tap-list mb-4 flex flex-wrap items-center gap-x-1.5 text-[12px] text-ink-faint">
     <a href="/" class="hover:text-ink">Home</a> <span aria-hidden>/</span> Nuclides
   </nav>
 
