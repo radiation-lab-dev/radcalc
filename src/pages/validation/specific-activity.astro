@@ -111,8 +111,9 @@ const title = "Specific activity validation — molar masses and the becquerel p
 const description =
   "Specific activity derived by hand from the definitions of the mole and the becquerel, with every molar mass set against the AME2020 atomic mass evaluation. This report records a defect it found and removed.";
 ---
-<Base title={title} description={description} schema="TechArticle">
-  <nav class="tap-list mb-4 flex flex-wrap items-center gap-x-1.5 text-[12px] text-ink-faint">
+<Base title={title} description={description} schema="TechArticle"
+      breadcrumb={[{ name: "Validation", path: u("/validation/") }, { name: "Specific activity" }]}>
+  <nav aria-label="Breadcrumb" class="tap-list mb-4 flex flex-wrap items-center gap-x-1.5 text-[12px] text-ink-faint">
     <a href="/" class="hover:text-ink">Home</a> <span aria-hidden>/</span>
     <a href={u("/validation/")} class="hover:text-ink">Validation</a> <span aria-hidden>/</span> Specific activity
   </nav>

@@ -18,16 +18,29 @@
  *   **생성의 원천 셋**(데이터·산문 생성기·제목 생성기·라우트 본문). 핵종 낱장은 사람이 쓴
  *   글이 아니라 **생성물**이라 생성기가 바뀌면 147장의 글이 실제로 바뀐다 — 그래서 센다.
  *   틀(레이아웃·공통 컴포넌트)은 일부러 세지 않는다.
+ * ★★ **도구 쪽은 등록부에서 제 몫만 센다**(2026-11-02, 작업지시 40-1 ②). 도구 쪽의 `<title>` · 설명 · 큰 제목 · 전제 ·
+ *   FAQ 는 `.astro` 가 아니라 `src/lib/tools.ts` · `src/data/tool-faq.ts` 에서 온다. 그전에는 `.astro` 만 세어서
+ *   #99 가 beta · specific-activity 의 제목을 바꾸고도 두 쪽의 `lastmod` 가 10-25 에 머물렀다.
+ *   ★ 파일 통째로 세지 않는다 — 그러면 한 도구를 고친 날 **열 쪽이 함께** 바뀐 것으로 나간다(위의 「전부 최근」 거짓말).
+ *     `git log -L` 로 **그 도구의 항목 줄**이 마지막으로 바뀐 커밋만 본다. 틀(`ToolPage.astro`)은 여전히 세지 않는다 —
+ *     제목 · 설명을 **나르기만** 하고, 고치면 모든 도구 쪽이 한꺼번에 바뀐다.
  */
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+/* ★ 2026-11-02(작업지시 40-1 ⑤) — 이 파일은 `astro.config.mjs`(사이트맵) 말고 `Base.astro`(TechArticle 의 dateModified)도 읽는다.
+   쪽을 그릴 때는 Vite 가 이 모듈을 묶음 조각(`dist/` 아래)으로 옮겨 `import.meta.url` 의 두 단계 위가 저장소 뿌리가 아니게 된다.
+   그때는 빌드를 돌린 자리(저장소 뿌리)를 쓴다. */
+const NEAR = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+const ROOT = existsSync(join(NEAR, "src/lib/lastmod.mjs")) ? NEAR : process.cwd();
 
 const git = (a) =>
   execFileSync("git", a, { cwd: ROOT, encoding: "utf8", maxBuffer: 1 << 28, stdio: ["ignore", "pipe", "ignore"] });
+
+/** 얕은 클론의 경계 커밋 — 이보다 오래된 변경은 이 커밋으로 뭉쳐 보인다. */
+let BOUNDARY = new Set();
 
 function gitDates() {
   let out;
@@ -37,9 +50,8 @@ function gitDates() {
   } catch {
     return null;
   }
-  let boundary = new Set();
   try {
-    boundary = new Set(
+    BOUNDARY = new Set(
       git(["rev-parse", "--is-shallow-repository"]).trim() === "true"
         ? readFileSync(join(ROOT, ".git/shallow"), "utf8").split("\n").map((x) => x.trim()).filter(Boolean)
         : [],
@@ -56,7 +68,7 @@ function gitDates() {
     }
     const f = line.trim();
     if (!f || !date || by.has(f)) continue;
-    by.set(f, boundary.has(sha) ? null : date);
+    by.set(f, BOUNDARY.has(sha) ? null : date);
   }
   return by.size ? by : null;
 }
@@ -64,9 +76,10 @@ function gitDates() {
 const DATES = gitDates();
 const rel = (abs) => relative(ROOT, abs).split("\\").join("/");
 
-function newest(paths) {
+function newest(paths, extra = []) {
   if (!DATES) return null;
   let best = null;
+  for (const d of extra) if (!best || d > best) best = d;
   for (const p of paths) {
     const d = DATES.get(rel(p));
     if (d && (!best || d > best)) best = d;
@@ -75,6 +88,43 @@ function newest(paths) {
 }
 
 const page = (...p) => join(ROOT, "src/pages", ...p);
+
+/** 파일 안 한 구간(`/시작/,/끝/`)이 마지막으로 바뀐 커밋 날짜. 구간을 못 찾으면 `null`, 얕은 클론의 경계에 걸리면 `undefined`(모른다).
+ *  정규식은 git 의 것(POSIX 기본형)이다 — `{` 는 글자 그대로, `[` 는 `\[` 로 적는다. */
+const SLICES = new Map();
+function sliceDate(file, start, end) {
+  const k = [file, start, end].join("\n");
+  if (SLICES.has(k)) return SLICES.get(k);
+  let d = null;
+  try {
+    const out = git(["log", "-1", `-L/${start}/,/${end}/:${file}`, "--format=%x00%H %cI", "--no-patch"]);
+    const head = out.split("\n").find((l) => l.startsWith("\u0000"));
+    if (head) {
+      const [h, date] = head.slice(1).trim().split(" ");
+      d = BOUNDARY.has(h) ? undefined : date;
+    }
+  } catch { /* git 이 없거나 구간이 없다 */ }
+  SLICES.set(k, d);
+  return d;
+}
+
+/** 등록부의 도구 slug — `tools.ts` 를 들여올 수 없어(.mjs · Vite 설정 단계) 글자에서 읽는다. */
+const TOOL_SLUGS = (() => {
+  try {
+    return new Set([...readFileSync(join(ROOT, "src/lib/tools.ts"), "utf8").matchAll(/^  \{ slug: "([a-z0-9-]+)"/gm)].map((m) => m[1]));
+  } catch { return new Set(); }
+})();
+
+/** 도구 쪽 — `.astro` 와, 등록부 · FAQ 에서 **그 도구의 항목**. 하나라도 「모른다」면 쪽 전체를 비운다(지어내지 않는다). */
+function toolLastmod(slug) {
+  const faqKey = /^[a-z]+$/.test(slug) ? slug : `"${slug}"`;
+  const parts = [
+    sliceDate("src/lib/tools.ts", `^  { slug: "${slug}"`, "^  },"),
+    sliceDate("src/data/tool-faq.ts", `^  ${faqKey}: \\[`, "^  \\],"),
+  ];
+  if (parts.includes(undefined)) return null;
+  return newest([page(`${slug}.astro`)], parts.filter(Boolean));
+}
 
 /** 핵종 낱장의 원천 — 데이터와 **생성기들**.
  *  ★ `nuclide-pages.ts` 를 든다(2026-10-06 ④) — 어느 핵종에 쪽이 있는지가 낱장의 내용도 바꾼다
@@ -115,7 +165,8 @@ export function lastmodFor(path) {
       ? newest([page("notes/index.astro"), join(ROOT, "src/lib/articles.ts")])
       : newest([page("notes", `${seg[1]}.astro`), join(ROOT, "src/lib/note-examples.ts")]);
 
-  if (seg.length === 1) return newest([page(`${seg[0]}.astro`)]);
+  if (seg.length === 1)
+    return TOOL_SLUGS.has(seg[0]) ? toolLastmod(seg[0]) : newest([page(`${seg[0]}.astro`)]);
 
   return null;
 }

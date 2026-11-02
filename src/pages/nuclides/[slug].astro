@@ -74,14 +74,17 @@ const TOOLS_FOR: { href: string; label: string; when: boolean; prefill?: boolean
   { href: "/mda/", label: "Detection limits (MDA / MDC)", when: true },
   /* ★ 2026-10-31 — 잔존 비율 표가 있는 핵종 셋만. 없는 표로 보내지 않는다. */
   { href: `/radiopharmaceutical-decay/#${p.slug}`, label: "Remaining-activity table", when: ["Lu-177", "Tc-99m", "F-18"].includes(p.key) },
+  /* ★ 2026-11-02(작업지시 40-1 ①) — 그 핵종을 풀어 둔 노트가 있을 때만. 노트는 낱장으로 링크하는데 낱장은 노트로 가지 않았다. */
+  { href: "/notes/lu-177-decay-worked-example/", label: "Worked example: a Lu-177 dose from calibration to storage", when: p.key === "Lu-177" },
 ];
 /** ★ 검색 설명이 「5.27 years」를 말하면 찾아온 쪽에도 그 값이 있어야 한다 — 표 한 칸에만 더한다(틀 문장을 늘리지 않는다). */
 const usualHl = usualHalfLife(n);
 const related = ALL_KEYS.filter((k) => k !== key && NUCLIDES[k].sym === n.sym).slice(0, 8);
 ---
 <Base schema="TechArticle" title={seo.title} description={seo.description} noindex={isNoindex(key)}
-      schemaDescription={noteLead} citations={note?.sources?.map((x) => x.label) ?? []}>
-  <nav class="tap-list mb-4 flex flex-wrap items-center gap-x-1.5 text-[12px] text-ink-faint">
+      schemaDescription={noteLead} citations={note?.sources?.map((x) => x.label) ?? []}
+      breadcrumb={[{ name: "Nuclides", path: u("/nuclides/") }, { name: p.key }]}>
+  <nav aria-label="Breadcrumb" class="tap-list mb-4 flex flex-wrap items-center gap-x-1.5 text-[12px] text-ink-faint">
     <a href="/" class="hover:text-ink">Home</a> <span aria-hidden>/</span>
     <a href={u("/nuclides/")} class="hover:text-ink">Nuclides</a> <span aria-hidden>/</span> {p.key}
   </nav>

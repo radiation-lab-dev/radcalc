@@ -147,9 +147,11 @@ export const TOOLS: Tool[] = [
   },
   { slug: "decay", name: "Decay and half-life", heading: "Radioactive decay calculator",
     group: "activity", icon: "hourglass", line: "Activity after time, time to target, decay chains.",
-    seoTitle: "Radioactive decay calculator and half-life", needs: ["nuclide"], login: false,
+    /* ★ 2026-11-02(작업지시 40-1 ①) — 「lu 177 decay calculator」 노출이 있는데 순위 60 이었다. 제목과 소개 첫머리에 Lu-177 을 든다.
+       제목은 꼬리 「 · Radiation Lab」 포함 60자 — 「and half-life」 는 큰 제목 아래 소개와 본문이 든다. */
+    seoTitle: "Radioactive decay calculator: Lu-177, Tc-99m", needs: ["nuclide"], login: false,
     question: "How much is left after 18 months? When does this source drop below the limit?",
-    blurb: "Nuclear decay calculator for 147 nuclides: activity after any elapsed time, time to reach a target activity, and half-life from two measurements.",
+    blurb: "Nuclear decay calculator for Lu-177 and 146 other nuclides: activity after any time, time to a target activity, and half-life from two measurements.",
     assumes: [
       "Pure exponential decay of one nuclide, with half-lives from the IAEA evaluated nuclear data.",
       "Nothing but decay removes activity between the two times.",
