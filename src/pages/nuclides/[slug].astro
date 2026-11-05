@@ -151,7 +151,7 @@ const related = ALL_KEYS.filter((k) => k !== key && NUCLIDES[k].sym === n.sym).s
             `${cut.topKeV.toFixed(2)} keV and ${cut.iPct.toPrecision(3)}% emission probability in all, ` +
             `are excluded here and from Γ.`
           : `No recorded line for ${p.key} falls below the 20 keV cutoff, so this table is the whole photon spectrum.`}
-        {" "}<a href={u(hubLinks.lines)} class="underline">Why the two columns rank differently</a>.
+        {" "}<a href={u(hubLinks.lines)} class="underline">Probability and dose share</a>.
       </p>
       <table class="mt-3">
         <thead><tr><th>Energy (keV)</th><th>Emission probability (%)</th><th>Share of dose rate (%)</th></tr></thead>
@@ -193,7 +193,7 @@ const related = ALL_KEYS.filter((k) => k !== key && NUCLIDES[k].sym === n.sym).s
       <p class="mt-2 text-[13px] text-ink-faint">
         {/* ★ T12 검토 — 한 줄 쪽(TVL/HVL 이 정확히 3.32)에서 「A single energy would give 3.32 … What a spread of energies does instead」가 어색했다. */}
         {p.shares.length === 1 ? "With one line the ratio is the single-energy 3.32." : "A single energy would give 3.32."}
-        {" "}<a href={u(hubLinks.tvl)} class="underline">{p.shares.length === 1 ? "What a spread of energies would do" : "What a spread of energies does instead"}</a>.
+        {" "}<a href={u(hubLinks.tvl)} class="underline">Spectrum and attenuation ratios</a>.
       </p>
     </section>
   )}
@@ -302,7 +302,7 @@ const related = ALL_KEYS.filter((k) => k !== key && NUCLIDES[k].sym === n.sym).s
           Methods 한 곳(#air-kerma)에 두고 여기는 짧은 단서와 링크만 단다 — 43쪽에 같은 긴 문장을 두면 되풀이 몫이 는다.
           ★ 열한 낱말이다. `check-nuclides` ④-2 는 12어 아래의 `<li>` 를 링크 라벨로 보고 세지 않는다(산문이 아니라 길잡이다). */}
       {prose.some((t) => /[µμ]Sv/.test(t)) && <li><a href={u("/methods/#air-kerma")} class="underline">Air kerma, 1 µGy counted as 1 µSv</a> — not H*(10).</li>}
-      <li><a href={u(hubLinks.limits)} class="underline">What every sheet leaves out</a>, internal dose included.</li>
+      <li><a href={u(hubLinks.limits)} class="underline">Model limits and internal dose</a>.</li>
     </ul>
   </section>
 

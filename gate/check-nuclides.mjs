@@ -322,19 +322,24 @@ note(`안 본 것: 쪽이 없는 핵종의 글 ${noteKeys.length - shownNotes.le
      인계서 기준 「3문장 이상 겹치면 실패」보다 좁다). 보고서용으로 쪽별 어수 · 출처 수를 찍는다.
    ★★ 2026-10-29(T10-②) — **2차 20편**(`NOTES_ROUND2`, 해설 없던 색인 40쪽 중 문장 틀 몫 상위 20)을 같은 자로 함께 잰다.
      ⑤ 「같은 문장 0」은 **40편 전부 사이**에서 본다(1차와 2차 사이도 — 2차가 1차의 문장을 빌려 오면 같은 틀을 새로 만드는 것이다). */
-console.log("\n④-4 출처를 단 손글 40편(1차 GSC_TOP20 + 2차 NOTES_ROUND2) — 300~600어 · 출처 링크 둘 이상 · 구조화 설명 = 첫 문장 · 40편 사이 같은 문장 0");
-const { GSC_TOP20, NOTES_ROUND2, noteFirstSentence } = await tsImport("../src/data/nuclide-notes.ts", import.meta.url);
-const NOTED = [...GSC_TOP20, ...NOTES_ROUND2];
-if (new Set(NOTED).size !== NOTED.length) fail.push("④-4 1차 · 2차 목록에 겹치는 핵종이 있다");
+// 3차로 색인 대상 60종 전부를 다룬다. 기존 두 차수의 하한은 유지하고 새 원고만 더 좁게 검사한다.
+console.log("\n④-4 출처를 단 손글 60편(1차 GSC_TOP20 + 2차 NOTES_ROUND2 + 3차 NOTES_ROUND3) — 구조화 설명 = 첫 문장 · 60편 사이 같은 문장 0");
+const { GSC_TOP20, NOTES_ROUND2, NOTES_ROUND3, noteFirstSentence } = await tsImport("../src/data/nuclide-notes.ts", import.meta.url);
+const NOTED = [...GSC_TOP20, ...NOTES_ROUND2, ...NOTES_ROUND3];
+if (NOTED.length !== 60 || NOTES_ROUND3.length !== 20) fail.push("④-4 해설 목록은 전체 60편 · 3차 20편이어야 한다");
+if (new Set(NOTED).size !== NOTED.length) fail.push("④-4 1차 · 2차 · 3차 목록에 겹치는 핵종이 있다");
 const { isNoindex } = await tsImport("../src/lib/nuclide-pages.ts", import.meta.url);
+for (const key of PAGE_KEYS.filter((k) => !isNoindex(k))) {
+  if (!NOTED.includes(key)) fail.push(`④-4 ${key}: 색인 대상에 출처 해설이 빠졌다`);
+}
 const TOP_MIN = 300, TOP_MAX = 600;
 const sentOwner = new Map();
 const topRows = [];
 for (const key of NOTED) {
   const slug = key.toLowerCase();
   const pg = pages.get(slug);
-  if (!pg) { fail.push(`④-4 ${key}: 쪽이 없다(손글을 단 40종은 쪽이 서야 한다 — lib/nuclide-pages.ts PUBLISHED)`); continue; }
-  if (isNoindex(key) || /<meta name="robots" content="[^"]*noindex/i.test(pg.html)) fail.push(`④-4 ${key}: noindex 다 — 손글을 단 40쪽은 색인한다(소유주 결정: noindex · 합치기 없음)`);
+  if (!pg) { fail.push(`④-4 ${key}: 쪽이 없다(손글을 단 60종은 쪽이 서야 한다 — lib/nuclide-pages.ts PUBLISHED)`); continue; }
+  if (isNoindex(key) || /<meta name="robots" content="[^"]*noindex/i.test(pg.html)) fail.push(`④-4 ${key}: noindex 다 — 손글을 단 60쪽은 색인한다(소유주 결정: noindex · 합치기 없음)`);
   const got = noteText.get(key);
   if (!got) { fail.push(`④-4 ${key}: 손글이 그려지지 않았다`); continue; }
   /* ★ 문단만 센다 — 제목은 넣지 않는다(인계서 「쪽당 300~600어의 해설」은 글 본문이다. 제목까지 세면 F-18 이 305어로
@@ -345,6 +350,12 @@ for (const key of NOTED) {
   const links = [...((sec.match(/<ul[^>]*data-note-sources[^>]*>([\s\S]*?)<\/ul>/) || [, ""])[1].matchAll(/<a href="(https?:\/\/[^"]+)"/g))].map((m) => m[1]);
   const srcN = ((sec.match(/<ul[^>]*data-note-sources[^>]*>([\s\S]*?)<\/ul>/) || [, ""])[1].match(/<li>/g) || []).length;
   if (links.filter((h) => h.startsWith("https://")).length < 2) fail.push(`④-4 ${key}: 출처 링크(https) ${links.length}개 — 둘 이상`);
+  if (NOTES_ROUND3.includes(key)) {
+    if (words < 310 || words > 390) fail.push(`④-4 ${key}: 3차 문단 ${words}어 — 310~390어`);
+    if (got.ps.length < 3 || got.ps.length > 5) fail.push(`④-4 ${key}: 3차 문단 수 ${got.ps.length}개 — 3~5개`);
+    if (srcN < 3 || srcN > 5 || links.length < 3 || links.length > 4)
+      fail.push(`④-4 ${key}: 3차 출처 ${srcN}개(링크 ${links.length}개) — 3~5개(링크 3~4개)`);
+  }
   const lead = noteFirstSentence(NUCLIDE_NOTES[key]);
   const ld = [...pg.html.matchAll(/<script type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g)].map((m) => { try { return JSON.parse(m[1]); } catch { return null; } });
   const node = ld.flatMap((x) => x?.["@graph"] ?? []).find((x) => x?.["@type"] === "TechArticle");
@@ -360,8 +371,9 @@ for (const key of NOTED) {
   topRows.push(`${key} ${words}어 · 출처 ${srcN}(링크 ${links.length})`);
 }
 note(`1차 20쪽: ${topRows.slice(0, GSC_TOP20.length).join(" | ")}`);
-note(`2차 20쪽: ${topRows.slice(GSC_TOP20.length).join(" | ")}`);
-note(`40편 사이 같은 문장(여섯 낱말 이상): ${fail.filter((f) => f.startsWith("④-4") && f.includes("같은 문장")).length}건 · 비교한 문장 ${sentOwner.size}개`);
+note(`2차 20쪽: ${topRows.slice(GSC_TOP20.length, GSC_TOP20.length + NOTES_ROUND2.length).join(" | ")}`);
+note(`3차 20쪽: ${topRows.slice(GSC_TOP20.length + NOTES_ROUND2.length).join(" | ")}`);
+note(`60편 사이 같은 문장(여섯 낱말 이상): ${fail.filter((f) => f.startsWith("④-4") && f.includes("같은 문장")).length}건 · 비교한 문장 ${sentOwner.size}개`);
 
 /* ── ⑤ 계산기 링크가 실제로 복원되는가 ───────────────────── */
 console.log("\n⑤ 계산기 프리필이 실제로 복원되는가");
